@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+#    command: sh -c "python manage.py runserver 0.0.0.0:8000"
+    command: gunicorn passaporte_vacinacao.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - .:/usr/src/app/
+      - static_admin:/usr/local/lib/python3.6/site-packages/django/contrib/admin/static/admin
+    ports:
+      - 8000:8000
+    env_file:
+      - ./.env.dev
+
+  nginx:
+    build: ./nginx
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+      - ./static:/www/static/passaporte_vacinacao
+      - static_admin:/www/static/passaporte_vacinacao/admin
+    ports:
+      - 1337:80
+    depends_on:
+        - web
+
+volumes:
+    static_admin:
