@@ -5,7 +5,7 @@ services:
     image: levicacau/sistemasbase:latest
     build: .
 #    command: sh -c "python manage.py runserver 0.0.0.0:8000"
-    command: gunicorn passaporte_vacinacao.wsgi:application --bind 0.0.0.0:8000
+    command: sh -c "gunicorn plataforma_projetos.wsgi:application --bind 0.0.0.0:8000"
     volumes:
       - .:/usr/src/app/
       - static_admin:/usr/local/lib/python3.6/site-packages/django/contrib/admin/static/admin
@@ -16,10 +16,13 @@ services:
 
   nginx:
     build: ./nginx
+    environment:
+      - PROJECT_NAME=plataforma_projetos
+    command: sh -c "export PROJECT_NAME && envsubst '$$PROJECT_NAME' < /etc/nginx/conf.d/nginx.conf.template > /etc/nginx/conf.d/nginx.conf && nginx -g 'daemon off;'"
     volumes:
       - ./nginx:/etc/nginx/conf.d
-      - ./static:/www/static/passaporte_vacinacao
-      - static_admin:/www/static/passaporte_vacinacao/admin
+      - ./static:/www/static/plataforma_projetos
+      - static_admin:/www/static/plataforma_projetos/admin
     ports:
       - 1337:80
     depends_on:
